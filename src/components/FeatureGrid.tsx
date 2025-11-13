@@ -14,7 +14,13 @@ import {
   Heart,
   Send,
   TrendingUp,
-  Package
+  Package,
+  Ticket,
+  HardDrive,
+  RefreshCw,
+  Activity,
+  Shield,
+  BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -32,7 +38,7 @@ const features: Feature[] = [
   { name: "Sign", icon: PenTool, color: "bg-feature-teal" },
   { name: "CRM", icon: Users, color: "bg-feature-pink", link: "/features/crm" },
   { name: "Studio", icon: Wrench, color: "bg-feature-blue" },
-  { name: "Subscriptions", icon: TrendingUp, color: "bg-feature-orange" },
+  { name: "Subscriptions", icon: TrendingUp, color: "bg-feature-orange", link: "/features/subscriptions" },
   { name: "Rental", icon: Package, color: "bg-feature-purple" },
   { name: "Point of Sale", icon: ShoppingBag, color: "bg-feature-pink" },
   { name: "Discuss", icon: MessageSquare, color: "bg-feature-orange" },
@@ -41,10 +47,15 @@ const features: Feature[] = [
   { name: "Timesheets", icon: Calendar, color: "bg-feature-purple" },
   { name: "Field Service", icon: Zap, color: "bg-feature-orange" },
   { name: "Planning", icon: Calendar, color: "bg-feature-teal" },
-  { name: "Helpdesk", icon: Headphones, color: "bg-feature-green" },
+  { name: "Tickets", icon: Ticket, color: "bg-feature-green", link: "/features/tickets" },
   { name: "Website", icon: Globe, color: "bg-feature-blue" },
   { name: "Social Marketing", icon: Heart, color: "bg-feature-pink" },
   { name: "Email Marketing", icon: Send, color: "bg-feature-purple", link: "/features/email-marketing" },
+  { name: "Assets", icon: HardDrive, color: "bg-feature-teal", link: "/features/assets" },
+  { name: "Updates", icon: RefreshCw, color: "bg-feature-blue", link: "/features/updates" },
+  { name: "Monitoring", icon: Activity, color: "bg-feature-green", link: "/features/monitoring" },
+  { name: "Compliance", icon: Shield, color: "bg-feature-purple", link: "/features/compliance" },
+  { name: "Reports", icon: BarChart3, color: "bg-feature-orange", link: "/features/reports" },
 ];
 
 export const FeatureGrid = () => {
