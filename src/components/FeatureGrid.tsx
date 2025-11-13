@@ -17,32 +17,34 @@ import {
   Package
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface Feature {
   name: string;
   icon: React.ElementType;
   color: string;
+  link?: string;
 }
 
 const features: Feature[] = [
-  { name: "Accounting", icon: Calculator, color: "bg-feature-purple" },
+  { name: "Accounting", icon: Calculator, color: "bg-feature-purple", link: "/features/accounting" },
   { name: "Knowledge", icon: BookOpen, color: "bg-feature-blue" },
   { name: "Sign", icon: PenTool, color: "bg-feature-teal" },
-  { name: "CRM", icon: Users, color: "bg-feature-pink" },
+  { name: "CRM", icon: Users, color: "bg-feature-pink", link: "/features/crm" },
   { name: "Studio", icon: Wrench, color: "bg-feature-blue" },
   { name: "Subscriptions", icon: TrendingUp, color: "bg-feature-orange" },
   { name: "Rental", icon: Package, color: "bg-feature-purple" },
   { name: "Point of Sale", icon: ShoppingBag, color: "bg-feature-pink" },
   { name: "Discuss", icon: MessageSquare, color: "bg-feature-orange" },
   { name: "Documents", icon: FileText, color: "bg-feature-blue" },
-  { name: "Project", icon: Zap, color: "bg-feature-teal" },
+  { name: "Project", icon: Zap, color: "bg-feature-teal", link: "/features/project" },
   { name: "Timesheets", icon: Calendar, color: "bg-feature-purple" },
   { name: "Field Service", icon: Zap, color: "bg-feature-orange" },
   { name: "Planning", icon: Calendar, color: "bg-feature-teal" },
   { name: "Helpdesk", icon: Headphones, color: "bg-feature-green" },
   { name: "Website", icon: Globe, color: "bg-feature-blue" },
   { name: "Social Marketing", icon: Heart, color: "bg-feature-pink" },
-  { name: "Email Marketing", icon: Send, color: "bg-feature-purple" },
+  { name: "Email Marketing", icon: Send, color: "bg-feature-purple", link: "/features/email-marketing" },
 ];
 
 export const FeatureGrid = () => {
@@ -50,11 +52,8 @@ export const FeatureGrid = () => {
     <section id="apps" className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
-          {features.map((feature) => (
-            <div
-              key={feature.name}
-              className="group bg-card border border-border rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1"
-            >
+          {features.map((feature) => {
+            const content = (
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className={`${feature.color} p-4 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="h-8 w-8 text-white" />
@@ -63,8 +62,25 @@ export const FeatureGrid = () => {
                   {feature.name}
                 </p>
               </div>
-            </div>
-          ))}
+            );
+
+            return feature.link ? (
+              <Link
+                key={feature.name}
+                to={feature.link}
+                className="group bg-card border border-border rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 block"
+              >
+                {content}
+              </Link>
+            ) : (
+              <div
+                key={feature.name}
+                className="group bg-card border border-border rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1"
+              >
+                {content}
+              </div>
+            );
+          })}
         </div>
 
         {/* Bottom CTA section */}
