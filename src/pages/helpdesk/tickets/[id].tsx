@@ -105,11 +105,27 @@ export default function TicketDetail() {
     queryFn: async () => {
       const { data } = await supabase
         .from("helpdesk_problem_tickets")
-        .select("*, problem:helpdesk_problems(id, problem_number, problem_title, status)")
+        .select("*, problem:helpdesk_problems(id, problem_number, title, status)")
         .eq("ticket_id", parseInt(ticketId!));
       return data || [];
     },
     enabled: !!ticketId,
+  });
+
+  const { data: availableProblems = [] } = useQuery({
+    queryKey: ["helpdesk-problems-for-link", ticket?.organisation_id],
+    queryFn: async () => {
+      if (!ticket?.organisation_id) return [];
+      const { data, error } = await supabase
+        .from("helpdesk_problems")
+        .select("id, problem_number, title, status")
+        .eq("organisation_id", ticket.organisation_id)
+        .eq("is_deleted", false)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!ticket?.organisation_id,
   });
 
   const { data: currentUser } = useQuery({
@@ -155,6 +171,28 @@ export default function TicketDetail() {
     },
     onError: (error: Error) => {
       toast.error("Failed to add comment: " + error.message);
+    },
+  });
+
+  const [selectedProblemId, setSelectedProblemId] = useState("");
+
+  const linkProblem = useMutation({
+    mutationFn: async (problemId: string) => {
+      const { error } = await supabase
+        .from("helpdesk_problem_tickets")
+        .insert({
+          ticket_id: parseInt(ticketId!),
+          problem_id: parseInt(problemId),
+        });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Problem linked to ticket");
+      setSelectedProblemId("");
+      queryClient.invalidateQueries({ queryKey: ["helpdesk-problem-tickets", ticketId] });
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to link problem: " + error.message);
     },
   });
 
@@ -444,21 +482,59 @@ export default function TicketDetail() {
 
               <TabsContent value="problems" className="mt-3">
                 <Card>
-                  <CardContent className="pt-4 space-y-3">
-                    {linkedProblems && linkedProblems.length > 0 ? (
-                      linkedProblems.map((lp: any) => (
-                        <div key={lp.id} className="border-b pb-3 last:border-0">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-sm">{lp.problem?.problem_number}</p>
-                              <p className="text-xs text-muted-foreground">{lp.problem?.problem_title}</p>
+                  <CardContent className="pt-4 space-y-4">
+                    <div>
+                      {linkedProblems && linkedProblems.length > 0 ? (
+                        linkedProblems.map((lp: any) => (
+                          <div key={lp.id} className="border-b pb-3 last:border-0">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium text-sm">{lp.problem?.problem_number}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {lp.problem?.title}
+                                </p>
+                              </div>
+                              <Badge className="text-xs">{lp.problem?.status}</Badge>
                             </div>
-                            <Badge className="text-xs">{lp.problem?.status}</Badge>
                           </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-3">No linked problems</p>
+                      )}
+                    </div>
+
+                    {availableProblems.length > 0 && (
+                      <div className="border-t pt-4 mt-2 space-y-2">
+                        <p className="text-xs text-muted-foreground">Link this ticket to an existing problem</p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Select
+                            value={selectedProblemId}
+                            onValueChange={setSelectedProblemId}
+                          >
+                            <SelectTrigger className="sm:w-80 h-8 text-sm">
+                              <SelectValue placeholder="Select a problem" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableProblems.map((p: any) => (
+                                <SelectItem key={p.id} value={p.id.toString()}>
+                                  {p.problem_number} — {p.title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            size="sm"
+                            className="h-8 sm:w-auto"
+                            disabled={!selectedProblemId || linkProblem.isPending}
+                            onClick={() => selectedProblemId && linkProblem.mutate(selectedProblemId)}
+                          >
+                            {linkProblem.isPending && (
+                              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                            )}
+                            Link Problem
+                          </Button>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-3">No linked problems</p>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
