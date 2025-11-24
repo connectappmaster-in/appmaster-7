@@ -50,7 +50,8 @@ export default function TicketDetail() {
           *,
           requester:users!helpdesk_tickets_requester_id_fkey(name, email),
           assignee:users!helpdesk_tickets_assignee_id_fkey(name, email),
-          category:helpdesk_categories(name)
+          category:helpdesk_categories(name),
+          created_by_user:users!helpdesk_tickets_created_by_fkey(name, email)
         `)
         .eq("id", parseInt(ticketId!))
         .single();
@@ -352,6 +353,14 @@ export default function TicketDetail() {
                     <div className="min-w-0">
                       <p className="text-xs text-muted-foreground">Requester</p>
                       <p className="font-medium truncate">{ticket.requester?.name || "Unknown"}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <User className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Created by</p>
+                      <p className="font-medium truncate">{ticket.created_by_user?.name || ticket.created_by_user?.email || "Unknown"}</p>
                     </div>
                   </div>
 

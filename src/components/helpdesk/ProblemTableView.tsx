@@ -46,104 +46,113 @@ export const ProblemTableView = ({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border rounded-lg overflow-hidden text-[0.85rem]">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">
+          <TableRow className="h-9">
+            <TableHead className="w-10 py-2">
               <Checkbox
                 checked={selectedIds.length === problems.length && problems.length > 0}
                 onCheckedChange={onSelectAll}
               />
             </TableHead>
-            <TableHead>Problem #</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Assignee</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="py-2">Problem #</TableHead>
+            <TableHead className="py-2">Title</TableHead>
+            <TableHead className="py-2">Status</TableHead>
+            <TableHead className="py-2">Priority</TableHead>
+            <TableHead className="py-2">Assignee</TableHead>
+            <TableHead className="py-2">Created By</TableHead>
+            <TableHead className="py-2">Category</TableHead>
+            <TableHead className="py-2">Created</TableHead>
+            <TableHead className="text-right py-2">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {problems.map((problem) => (
-            <TableRow key={problem.id} className="cursor-pointer hover:bg-muted/50">
-              <TableCell onClick={(e) => e.stopPropagation()}>
+            <TableRow key={problem.id} className="cursor-pointer hover:bg-muted/50 h-11">
+              <TableCell onClick={(e) => e.stopPropagation()} className="py-1.5">
                 <Checkbox
                   checked={selectedIds.includes(problem.id)}
                   onCheckedChange={() => onSelectProblem(problem.id)}
                 />
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
-                <Badge variant="outline" className="font-mono">
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
+                <Badge variant="outline" className="font-mono text-[0.75rem] px-1.5 py-0.5">
                   {problem.problem_number}
                 </Badge>
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
                 <div className="max-w-xs">
-                  <div className="font-medium truncate">{problem.title}</div>
-                  <div className="text-sm text-muted-foreground truncate">
+                  <div className="font-medium truncate text-[0.85rem]">{problem.title}</div>
+                  <div className="text-[0.75rem] text-muted-foreground truncate">
                     {problem.description}
                   </div>
                 </div>
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
-                <Badge variant="outline" className={getStatusColor(problem.status)}>
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
+                <Badge variant="outline" className={`${getStatusColor(problem.status)} text-[0.75rem] px-1.5 py-0.5`}>
                   {problem.status.replace('_', ' ')}
                 </Badge>
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
-                <Badge className={getPriorityColor(problem.priority)}>
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
+                <Badge className={`${getPriorityColor(problem.priority)} text-[0.75rem] px-1.5 py-0.5`}>
                   {problem.priority}
                 </Badge>
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
                 {problem.assigned_to ? (
-                  <span>{problem.assigned_to}</span>
+                  <span className="text-[0.85rem]">{problem.assigned_to}</span>
                 ) : (
-                  <span className="text-muted-foreground italic">Unassigned</span>
+                  <span className="text-muted-foreground italic text-[0.8rem]">Unassigned</span>
                 )}
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
+                {problem.created_by_user?.name || problem.created_by_user?.email || (
+                  <span className="text-muted-foreground italic text-[0.8rem]">Unknown</span>
+                )}
+              </TableCell>
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
                 {problem.category?.name || '-'}
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
-                <div className="text-sm">
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
+                <div className="text-[0.8rem]">
                   {format(new Date(problem.created_at), 'MMM dd, yyyy')}
                 </div>
               </TableCell>
-              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-end gap-1">
+              <TableCell className="text-right py-1.5" onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-end gap-0.5">
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-7 w-7"
                     onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}
                     title="View"
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-7 w-7"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditProblem?.(problem);
                     }}
                     title="Edit"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-7 w-7"
                     onClick={(e) => {
                       e.stopPropagation();
                       onAssignProblem?.(problem);
                     }}
                     title="Assign"
                   >
-                    <UserPlus className="h-4 w-4" />
+                    <UserPlus className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </TableCell>
