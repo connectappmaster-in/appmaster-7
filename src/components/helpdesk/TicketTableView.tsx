@@ -11,13 +11,17 @@ interface TicketTableViewProps {
   selectedIds: number[];
   onSelectTicket: (id: number) => void;
   onSelectAll: (checked: boolean) => void;
+  onEditTicket?: (ticket: any) => void;
+  onAssignTicket?: (ticket: any) => void;
 }
 
 export const TicketTableView = ({ 
   tickets, 
   selectedIds, 
   onSelectTicket, 
-  onSelectAll 
+  onSelectAll,
+  onEditTicket,
+  onAssignTicket
 }: TicketTableViewProps) => {
   const navigate = useNavigate();
 
@@ -121,7 +125,10 @@ export const TicketTableView = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => navigate(`/helpdesk/tickets/${ticket.id}?edit=true`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditTicket?.(ticket);
+                    }}
                     title="Edit"
                   >
                     <Edit className="h-4 w-4" />
@@ -131,7 +138,7 @@ export const TicketTableView = ({
                     size="icon"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/helpdesk/tickets/${ticket.id}?assign=true`);
+                      onAssignTicket?.(ticket);
                     }}
                     title="Assign"
                   >
