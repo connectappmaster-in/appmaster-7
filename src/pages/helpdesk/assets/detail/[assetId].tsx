@@ -252,7 +252,7 @@ const AssetDetail = () => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Vendor:</span>
                     <span className="font-medium">
-                      {asset.itam_vendors && typeof asset.itam_vendors === 'object' && 'name' in asset.itam_vendors ? asset.itam_vendors.name : "—"}
+                      {asset.itam_vendors && typeof asset.itam_vendors === 'object' && 'name' in asset.itam_vendors ? String((asset.itam_vendors as any).name) : "—"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -385,9 +385,9 @@ const AssetDetail = () => {
                           <p className="text-sm text-muted-foreground">
                             Opened: {format(new Date(repair.opened_at), "MMM dd, yyyy")}
                           </p>
-                          {repair.itam_vendors && (
+                          {repair.itam_vendors && typeof repair.itam_vendors === 'object' && 'name' in repair.itam_vendors && (
                             <p className="text-sm text-muted-foreground">
-                              Vendor: {repair.itam_vendors.name}
+                              Vendor: {String((repair.itam_vendors as any).name)}
                             </p>
                           )}
                         </div>
