@@ -101,7 +101,6 @@ export const CreateProblemDialog = ({
       title: "",
       description: "",
       priority: "medium",
-      category_id: "",
       root_cause: "",
       workaround: "",
     },
