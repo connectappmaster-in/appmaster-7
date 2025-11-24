@@ -29,6 +29,7 @@ import NewTicket from "./pages/helpdesk/new";
 import HelpdeskAssets from "./pages/helpdesk/assets";
 import HelpdeskKB from "./pages/helpdesk/kb";
 import HelpdeskProblems from "./pages/helpdesk/problems";
+import HelpdeskProblemDetail from "./pages/helpdesk/problems/[id]";
 import HelpdeskChanges from "./pages/helpdesk/changes";
 import HelpdeskAutomation from "./pages/helpdesk/automation";
 import HelpdeskSubscriptionLayout from "./pages/helpdesk/subscription/index";
@@ -163,6 +164,7 @@ const App = () => {
             <Route path="reports" element={<HelpdeskReports />} />
             <Route path="audit" element={<HelpdeskAudit />} />
             <Route path="problems" element={<HelpdeskProblems />} />
+            <Route path="problems/:id" element={<HelpdeskProblemDetail />} />
             <Route path="changes" element={<HelpdeskChanges />} />
             <Route path="automation" element={<HelpdeskAutomation />} />
             <Route path="admin" element={<HelpdeskAdmin />} />
