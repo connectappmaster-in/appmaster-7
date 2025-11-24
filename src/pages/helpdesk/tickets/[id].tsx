@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Clock, User, Tag, MessageSquare, Edit, UserPlus, FileText, History, Paperclip, Link } from "lucide-react";
+import { Loader2, Clock, User, Tag, MessageSquare, Edit, UserPlus, FileText, History, Paperclip, Link, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -194,6 +194,23 @@ export default function TicketDetail() {
     },
     onError: (error: Error) => {
       toast.error("Failed to link problem: " + error.message);
+    },
+  });
+
+  const unlinkProblem = useMutation({
+    mutationFn: async (linkId: number) => {
+      const { error } = await supabase
+        .from("helpdesk_problem_tickets")
+        .delete()
+        .eq("id", linkId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Problem unlinked");
+      queryClient.invalidateQueries({ queryKey: ["helpdesk-problem-tickets", ticketId] });
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to unlink problem: " + error.message);
     },
   });
 
@@ -492,59 +509,76 @@ export default function TicketDetail() {
               <TabsContent value="problems" className="mt-3">
                 <Card>
                   <CardContent className="pt-4 space-y-4">
-                    <div>
-                      {linkedProblems && linkedProblems.length > 0 ? (
-                        linkedProblems.map((lp: any) => (
-                          <div key={lp.id} className="border-b pb-3 last:border-0">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium text-sm">{lp.problem?.problem_number}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {lp.problem?.title}
-                                </p>
-                              </div>
-                              <Badge className="text-xs">{lp.problem?.status}</Badge>
+                    {linkedProblems && linkedProblems.length > 0 && (
+                      <div className="space-y-2">
+                        {linkedProblems.map((link: any) => (
+                          <div
+                            key={link.id}
+                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Badge variant="outline" className="font-mono text-xs shrink-0">
+                                {link.problem?.problem_number}
+                              </Badge>
+                              <span className="text-sm font-medium truncate">
+                                {link.problem?.title}
+                              </span>
+                              <Badge variant="outline" className="text-xs capitalize shrink-0">
+                                {link.problem?.status?.replace("_", " ")}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => navigate(`/helpdesk/problems/${link.problem.id}`)}
+                              >
+                                View
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => unlinkProblem.mutate(link.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
                             </div>
                           </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground text-center py-3">No linked problems</p>
-                      )}
-                    </div>
-
-                    {availableProblems.length > 0 && (
-                      <div className="border-t pt-4 mt-2 space-y-2">
-                        <p className="text-xs text-muted-foreground">Link this ticket to an existing problem</p>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Select
-                            value={selectedProblemId}
-                            onValueChange={setSelectedProblemId}
-                          >
-                            <SelectTrigger className="sm:w-80 h-8 text-sm">
-                              <SelectValue placeholder="Select a problem" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableProblems.map((p: any) => (
-                                <SelectItem key={p.id} value={p.id.toString()}>
-                                  {p.problem_number} — {p.title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            size="sm"
-                            className="h-8 sm:w-auto"
-                            disabled={!selectedProblemId || linkProblem.isPending}
-                            onClick={() => selectedProblemId && linkProblem.mutate(selectedProblemId)}
-                          >
-                            {linkProblem.isPending && (
-                              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                            )}
-                            Link Problem
-                          </Button>
-                        </div>
+                        ))}
                       </div>
                     )}
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Link Problem</label>
+                      <div className="flex gap-2">
+                        <Select value={selectedProblemId} onValueChange={setSelectedProblemId}>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select a problem to link" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableProblems
+                              .filter(
+                                (problem) =>
+                                  !linkedProblems?.some((link: any) => link.problem_id === problem.id)
+                              )
+                              .map((problem) => (
+                                <SelectItem key={problem.id} value={problem.id.toString()}>
+                                  {problem.problem_number} - {problem.title}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          onClick={() => selectedProblemId && linkProblem.mutate(selectedProblemId)}
+                          disabled={!selectedProblemId || linkProblem.isPending}
+                        >
+                          {linkProblem.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Link
+                        </Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
