@@ -1,72 +1,138 @@
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, BarChart3, FileText, Users, Ticket, MessageSquare } from "lucide-react";
+const Hero = () => {
+  const featuredApps = [{
+    icon: Users,
+    name: "Attendance",
+    description: "Employee management and attendance tracking system",
+    color: "text-pink-600",
+    path: "/apps/attendance"
+  }, {
+    icon: BarChart3,
+    name: "CRM",
+    description: "Manage leads, contacts, and deals in one unified platform",
+    color: "text-blue-600",
+    path: "/apps/crm"
+  }, {
+    icon: FileText,
+    name: "Invoicing",
+    description: "Create and manage professional invoices with ease",
+    color: "text-purple-600",
+    path: "/apps/invoicing"
+  }, {
+    icon: Ticket,
+    name: "HelpDesk",
+    description: "Streamline customer support with ticket management",
+    color: "text-cyan-600",
+    path: "/apps/helpdesk"
+  }];
+  return <section className="relative pt-12 pb-8 px-4 bg-background overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{
+        animationDelay: "1s"
+      }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl opacity-50" />
+      </div>
 
-export const Hero = () => {
-  return (
-    <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-5xl mx-auto">
-          {/* Main headline with mixed typography */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            All your business on{" "}
-            <span className="relative inline-block">
-              <span className="font-handwritten text-6xl sm:text-7xl lg:text-8xl relative z-10">
-                one platform.
-              </span>
-              <span className="absolute inset-0 bg-accent/30 -skew-x-3 transform translate-y-2 -z-0 rounded-lg"></span>
-            </span>
-          </h1>
-
-          {/* Subheadline */}
-          <p className="text-3xl sm:text-4xl lg:text-5xl font-handwritten mb-12 text-foreground/90">
-            Simple, efficient, yet affordable!
-          </p>
-
-          {/* CTAs and pricing annotation */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-            <Button size="lg" className="text-base px-8 py-6 bg-primary hover:bg-primary/90">
-              Start now - it's free
-            </Button>
-            <Button size="lg" variant="secondary" className="text-base px-8 py-6">
-              Meet an advisor
-            </Button>
-          </div>
-
-          {/* Pricing annotation with handwritten style and arrow */}
-          <div className="relative inline-block">
-            <div className="flex items-center gap-2">
-              <ArrowDown className="h-12 w-12 text-foreground/60 transform rotate-[-30deg] animate-bounce" />
-              <div className="font-handwritten text-2xl sm:text-3xl text-foreground/80">
-                <span className="text-accent font-bold text-3xl sm:text-4xl">$24.90</span> / month
-                <br />
-                <span className="text-xl">for ALL apps</span>
+      <div className="container mx-auto relative z-10">
+        <div className="space-y-6">
+          {/* Main Hero Content */}
+          <div className="space-y-4 animate-fade-in text-center max-w-4xl mx-auto">
+            <div className="space-y-3 mx-0 py-0 px-0 my-0">
+              <div className="inline-block animate-fade-in">
+                
+              </div>
+              <h1 className="text-4xl font-bold text-foreground leading-tight lg:text-5xl font-display">
+                Simplify Operations,{" "}
+                <span className="text-primary">
+                  Amplify Growth
+                </span>
+              </h1>
+              
+              <div className="flex flex-wrap gap-3 pt-2 justify-center">
+                <Link to="/login">
+                  <Button size="lg" className="shadow-lg hover:shadow-xl transition-all group">Get for Free<ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  
+                </Link>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Event banner */}
-        <div className="mt-16 max-w-3xl mx-auto">
-          <div className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="text-3xl">🇺🇸</div>
-                <div>
-                  <p className="font-semibold text-foreground">Project Management - San Francisco, CA</p>
-                  <p className="text-sm text-muted-foreground">Nov 14, 2025</p>
+          {/* Featured Apps Grid */}
+          <div className="animate-fade-in" style={{
+          animationDelay: "0.2s"
+        }}>
+            <h3 className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+              Explore Our Apps
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
+              {featuredApps.map((app, index) => <Link key={index} to={app.path} className="block h-full">
+                  <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-4 shadow-lg hover:shadow-2xl transition-all duration-300 group hover:border-primary/50 hover:scale-105 h-full">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`p-3 rounded-lg bg-background border border-border ${app.color} group-hover:scale-110 transition-transform duration-300`}>
+                        <app.icon className="h-6 w-6" />
+                      </div>
+                      <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm">
+                        {app.name}
+                      </h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+                      {app.description}
+                    </p>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  </div>
+                </Link>)}
+            </div>
+          </div>
+
+          {/* Action Cards Section */}
+          <div className="animate-fade-in mt-6" style={{
+          animationDelay: "0.4s"
+        }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+              {/* Custom Tool Request Card */}
+              <Link to="/contact" className="block h-full">
+                <div className="bg-gradient-to-r from-primary/10 to-accent/10 backdrop-blur-sm border border-primary/20 rounded-lg p-3 shadow-md hover:shadow-lg transition-all duration-300 group hover:border-primary/50 h-full flex flex-col">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-2 rounded-lg bg-background border border-border text-primary group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                      <MessageSquare className="h-4 w-4" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                      Need a Custom Tool?
+                    </h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground pl-8 flex-1">
+                    Let's build something specific for your business needs
+                  </p>
                 </div>
-              </div>
-              <Button variant="outline" className="whitespace-nowrap">
-                Register →
-              </Button>
+              </Link>
+
+              {/* Report Issue Card */}
+              <Link to="/report-issue" className="block h-full">
+                <div className="bg-gradient-to-r from-destructive/10 to-destructive/5 backdrop-blur-sm border border-destructive/20 rounded-lg p-3 shadow-md hover:shadow-lg transition-all duration-300 group hover:border-destructive/50 h-full flex flex-col">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-2 rounded-lg bg-background border border-border text-destructive group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                      <MessageSquare className="h-4 w-4" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-foreground group-hover:text-destructive transition-colors">
+                      Report an Issue
+                    </h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground pl-8 flex-1">
+                    Found a bug? Let us know and we'll fix it quickly
+                  </p>
+                </div>
+              </Link>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Background decoration */}
-      <div className="absolute top-20 right-10 w-64 h-64 bg-accent/5 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10"></div>
-    </section>
-  );
+    </section>;
 };
+export default Hero;
