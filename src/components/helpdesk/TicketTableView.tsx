@@ -83,7 +83,7 @@ export const TicketTableView = ({
                 </span>
               </TableCell>
               <TableCell onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)} className="py-1.5">
-                <div className="max-w-xs">
+                <div className="max-w-sm">
                   <div className="font-medium truncate text-[0.85rem]">{ticket.title}</div>
                   <div className="text-[0.75rem] text-muted-foreground truncate">
                     {ticket.description}
