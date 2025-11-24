@@ -13,12 +13,17 @@ import { TicketTableView } from "@/components/helpdesk/TicketTableView";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EditTicketDialog } from "@/components/helpdesk/EditTicketDialog";
+import { AssignTicketDialog } from "@/components/helpdesk/AssignTicketDialog";
+
 export default function TicketsModule() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tickets");
   const [createProblemOpen, setCreateProblemOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [filters, setFilters] = useState<Record<string, any>>({});
+  const [editTicket, setEditTicket] = useState<any>(null);
+  const [assignTicket, setAssignTicket] = useState<any>(null);
   const {
     data: allTickets,
     isLoading
@@ -182,7 +187,14 @@ export default function TicketsModule() {
                     <Plus className="h-3.5 w-3.5" />
                     <span className="text-sm">Create First Ticket</span>
                   </Button>}
-              </div> : <TicketTableView tickets={tickets} selectedIds={selectedIds} onSelectTicket={handleSelectTicket} onSelectAll={handleSelectAll} />}
+              </div> : <TicketTableView 
+                tickets={tickets} 
+                selectedIds={selectedIds} 
+                onSelectTicket={handleSelectTicket} 
+                onSelectAll={handleSelectAll}
+                onEditTicket={setEditTicket}
+                onAssignTicket={setAssignTicket}
+              />}
           </TabsContent>
 
           <TabsContent value="problems" className="space-y-2">
@@ -225,6 +237,20 @@ export default function TicketsModule() {
         </Tabs>
 
         <CreateProblemDialog open={createProblemOpen} onOpenChange={setCreateProblemOpen} />
+        {editTicket && (
+          <EditTicketDialog 
+            open={!!editTicket} 
+            onOpenChange={(open) => !open && setEditTicket(null)}
+            ticket={editTicket}
+          />
+        )}
+        {assignTicket && (
+          <AssignTicketDialog 
+            open={!!assignTicket} 
+            onOpenChange={(open) => !open && setAssignTicket(null)}
+            ticket={assignTicket}
+          />
+        )}
       </div>
     </div>;
 }
