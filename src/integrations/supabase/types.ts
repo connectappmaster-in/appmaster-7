@@ -2619,6 +2619,547 @@ export type Database = {
         }
         Relationships: []
       }
+      itam_asset_assignments: {
+        Row: {
+          asset_id: number
+          assigned_at: string | null
+          assigned_by: string | null
+          created_at: string | null
+          expected_return_at: string | null
+          id: number
+          is_deleted: boolean | null
+          notes: string | null
+          return_condition: string | null
+          returned_at: string | null
+          tenant_id: number
+          user_id: string
+        }
+        Insert: {
+          asset_id: number
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          expected_return_at?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          notes?: string | null
+          return_condition?: string | null
+          returned_at?: string | null
+          tenant_id: number
+          user_id: string
+        }
+        Update: {
+          asset_id?: number
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          expected_return_at?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          notes?: string | null
+          return_condition?: string | null
+          returned_at?: string | null
+          tenant_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itam_asset_assignments_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "itam_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itam_asset_history: {
+        Row: {
+          action: string
+          asset_id: number
+          details: Json | null
+          id: number
+          performed_at: string | null
+          performed_by: string | null
+          tenant_id: number
+        }
+        Insert: {
+          action: string
+          asset_id: number
+          details?: Json | null
+          id?: number
+          performed_at?: string | null
+          performed_by?: string | null
+          tenant_id: number
+        }
+        Update: {
+          action?: string
+          asset_id?: number
+          details?: Json | null
+          id?: number
+          performed_at?: string | null
+          performed_by?: string | null
+          tenant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itam_asset_history_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "itam_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itam_asset_tags: {
+        Row: {
+          asset_id: number
+          created_at: string | null
+          id: number
+          tag_type: string
+          tag_value: string
+          tenant_id: number
+        }
+        Insert: {
+          asset_id: number
+          created_at?: string | null
+          id?: number
+          tag_type: string
+          tag_value: string
+          tenant_id: number
+        }
+        Update: {
+          asset_id?: number
+          created_at?: string | null
+          id?: number
+          tag_type?: string
+          tag_value?: string
+          tenant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itam_asset_tags_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "itam_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itam_assets: {
+        Row: {
+          amc_end: string | null
+          asset_tag: string
+          assigned_date: string | null
+          assigned_to: string | null
+          attachments: string[] | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          expected_return_date: string | null
+          hostname: string | null
+          id: number
+          is_deleted: boolean | null
+          location: string | null
+          mac_address: string | null
+          metadata: Json | null
+          model: string | null
+          name: string
+          organisation_id: string | null
+          purchase_date: string | null
+          purchase_order_id: number | null
+          purchase_price: number | null
+          serial_number: string | null
+          status: string | null
+          tenant_id: number
+          type: string
+          updated_at: string | null
+          updated_by: string | null
+          vendor_id: number | null
+          warranty_end: string | null
+        }
+        Insert: {
+          amc_end?: string | null
+          asset_tag: string
+          assigned_date?: string | null
+          assigned_to?: string | null
+          attachments?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          expected_return_date?: string | null
+          hostname?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          location?: string | null
+          mac_address?: string | null
+          metadata?: Json | null
+          model?: string | null
+          name: string
+          organisation_id?: string | null
+          purchase_date?: string | null
+          purchase_order_id?: number | null
+          purchase_price?: number | null
+          serial_number?: string | null
+          status?: string | null
+          tenant_id: number
+          type: string
+          updated_at?: string | null
+          updated_by?: string | null
+          vendor_id?: number | null
+          warranty_end?: string | null
+        }
+        Update: {
+          amc_end?: string | null
+          asset_tag?: string
+          assigned_date?: string | null
+          assigned_to?: string | null
+          attachments?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          expected_return_date?: string | null
+          hostname?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          location?: string | null
+          mac_address?: string | null
+          metadata?: Json | null
+          model?: string | null
+          name?: string
+          organisation_id?: string | null
+          purchase_date?: string | null
+          purchase_order_id?: number | null
+          purchase_price?: number | null
+          serial_number?: string | null
+          status?: string | null
+          tenant_id?: number
+          type?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          vendor_id?: number | null
+          warranty_end?: string | null
+        }
+        Relationships: []
+      }
+      itam_license_allocations: {
+        Row: {
+          allocated_at: string | null
+          asset_id: number | null
+          created_by: string | null
+          id: number
+          is_deleted: boolean | null
+          license_id: number
+          released_at: string | null
+          tenant_id: number
+          user_id: string | null
+        }
+        Insert: {
+          allocated_at?: string | null
+          asset_id?: number | null
+          created_by?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          license_id: number
+          released_at?: string | null
+          tenant_id: number
+          user_id?: string | null
+        }
+        Update: {
+          allocated_at?: string | null
+          asset_id?: number | null
+          created_by?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          license_id?: number
+          released_at?: string | null
+          tenant_id?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itam_license_allocations_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "itam_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itam_license_allocations_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "itam_licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itam_licenses: {
+        Row: {
+          attachments: string[] | null
+          created_at: string | null
+          expiry_date: string | null
+          id: number
+          is_deleted: boolean | null
+          license_key: string | null
+          name: string
+          notes: string | null
+          organisation_id: string | null
+          purchase_date: string | null
+          seats_allocated: number
+          seats_total: number
+          tenant_id: number
+          updated_at: string | null
+          vendor_id: number | null
+        }
+        Insert: {
+          attachments?: string[] | null
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          license_key?: string | null
+          name: string
+          notes?: string | null
+          organisation_id?: string | null
+          purchase_date?: string | null
+          seats_allocated?: number
+          seats_total?: number
+          tenant_id: number
+          updated_at?: string | null
+          vendor_id?: number | null
+        }
+        Update: {
+          attachments?: string[] | null
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          license_key?: string | null
+          name?: string
+          notes?: string | null
+          organisation_id?: string | null
+          purchase_date?: string | null
+          seats_allocated?: number
+          seats_total?: number
+          tenant_id?: number
+          updated_at?: string | null
+          vendor_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itam_licenses_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "itam_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itam_purchase_orders: {
+        Row: {
+          attachments: string[] | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          id: number
+          is_deleted: boolean | null
+          items: Json | null
+          ordered_date: string | null
+          organisation_id: string | null
+          po_number: string
+          received_date: string | null
+          status: string | null
+          tenant_id: number
+          total_amount: number | null
+          updated_at: string | null
+          updated_by: string | null
+          vendor_id: number | null
+        }
+        Insert: {
+          attachments?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          items?: Json | null
+          ordered_date?: string | null
+          organisation_id?: string | null
+          po_number: string
+          received_date?: string | null
+          status?: string | null
+          tenant_id: number
+          total_amount?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+          vendor_id?: number | null
+        }
+        Update: {
+          attachments?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          items?: Json | null
+          ordered_date?: string | null
+          organisation_id?: string | null
+          po_number?: string
+          received_date?: string | null
+          status?: string | null
+          tenant_id?: number
+          total_amount?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+          vendor_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itam_purchase_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "itam_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itam_repairs: {
+        Row: {
+          actual_cost: number | null
+          asset_id: number
+          attachments: string[] | null
+          created_by: string | null
+          estimated_cost: number | null
+          id: number
+          is_deleted: boolean | null
+          issue_description: string
+          opened_at: string | null
+          resolved_at: string | null
+          status: string | null
+          tenant_id: number
+          ticket_number: string | null
+          updated_at: string | null
+          vendor_id: number | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          asset_id: number
+          attachments?: string[] | null
+          created_by?: string | null
+          estimated_cost?: number | null
+          id?: number
+          is_deleted?: boolean | null
+          issue_description: string
+          opened_at?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          tenant_id: number
+          ticket_number?: string | null
+          updated_at?: string | null
+          vendor_id?: number | null
+        }
+        Update: {
+          actual_cost?: number | null
+          asset_id?: number
+          attachments?: string[] | null
+          created_by?: string | null
+          estimated_cost?: number | null
+          id?: number
+          is_deleted?: boolean | null
+          issue_description?: string
+          opened_at?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          tenant_id?: number
+          ticket_number?: string | null
+          updated_at?: string | null
+          vendor_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itam_repairs_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "itam_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itam_repairs_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "itam_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      itam_settings: {
+        Row: {
+          id: number
+          key: string
+          tenant_id: number
+          value: Json | null
+        }
+        Insert: {
+          id?: number
+          key: string
+          tenant_id: number
+          value?: Json | null
+        }
+        Update: {
+          id?: number
+          key?: string
+          tenant_id?: number
+          value?: Json | null
+        }
+        Relationships: []
+      }
+      itam_vendors: {
+        Row: {
+          address: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          id: number
+          is_deleted: boolean | null
+          name: string
+          notes: string | null
+          organisation_id: string | null
+          tenant_id: number
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          name: string
+          notes?: string | null
+          organisation_id?: string | null
+          tenant_id: number
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: number
+          is_deleted?: boolean | null
+          name?: string
+          notes?: string | null
+          organisation_id?: string | null
+          tenant_id?: number
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       license_assignments: {
         Row: {
           assigned_at: string | null
@@ -5654,6 +6195,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_asset_tag: { Args: { tenant_id_param: number }; Returns: string }
       generate_change_number: {
         Args: { p_org_id: string; p_tenant_id: number }
         Returns: string
