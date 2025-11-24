@@ -5581,6 +5581,172 @@ export type Database = {
         }
         Relationships: []
       }
+      system_devices: {
+        Row: {
+          created_at: string
+          device_name: string
+          device_uuid: string
+          failed_updates_count: number | null
+          id: string
+          is_deleted: boolean | null
+          last_seen: string | null
+          last_update_install: string | null
+          last_update_scan: string | null
+          notes: string | null
+          os_build: string | null
+          os_type: string
+          os_version: string | null
+          pending_critical_count: number | null
+          pending_total_count: number | null
+          tenant_id: number
+          update_compliance_status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_name: string
+          device_uuid: string
+          failed_updates_count?: number | null
+          id?: string
+          is_deleted?: boolean | null
+          last_seen?: string | null
+          last_update_install?: string | null
+          last_update_scan?: string | null
+          notes?: string | null
+          os_build?: string | null
+          os_type: string
+          os_version?: string | null
+          pending_critical_count?: number | null
+          pending_total_count?: number | null
+          tenant_id: number
+          update_compliance_status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_name?: string
+          device_uuid?: string
+          failed_updates_count?: number | null
+          id?: string
+          is_deleted?: boolean | null
+          last_seen?: string | null
+          last_update_install?: string | null
+          last_update_scan?: string | null
+          notes?: string | null
+          os_build?: string | null
+          os_type?: string
+          os_version?: string | null
+          pending_critical_count?: number | null
+          pending_total_count?: number | null
+          tenant_id?: number
+          update_compliance_status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      system_installed_updates: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          install_date: string
+          install_method: string | null
+          kb_number: string
+          status: string | null
+          tenant_id: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          install_date: string
+          install_method?: string | null
+          kb_number: string
+          status?: string | null
+          tenant_id: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          install_date?: string
+          install_method?: string | null
+          kb_number?: string
+          status?: string | null
+          tenant_id?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_installed_updates_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "system_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_pending_updates: {
+        Row: {
+          classification: string | null
+          created_at: string
+          detected_at: string
+          device_id: string
+          download_size_mb: number | null
+          id: string
+          is_deleted: boolean | null
+          kb_number: string
+          release_date: string | null
+          restart_required: boolean | null
+          severity: string | null
+          tenant_id: number
+          title: string
+        }
+        Insert: {
+          classification?: string | null
+          created_at?: string
+          detected_at?: string
+          device_id: string
+          download_size_mb?: number | null
+          id?: string
+          is_deleted?: boolean | null
+          kb_number: string
+          release_date?: string | null
+          restart_required?: boolean | null
+          severity?: string | null
+          tenant_id: number
+          title: string
+        }
+        Update: {
+          classification?: string | null
+          created_at?: string
+          detected_at?: string
+          device_id?: string
+          download_size_mb?: number | null
+          id?: string
+          is_deleted?: boolean | null
+          kb_number?: string
+          release_date?: string | null
+          restart_required?: boolean | null
+          severity?: string | null
+          tenant_id?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_pending_updates_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "system_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_settings: {
         Row: {
           created_at: string | null
@@ -5604,6 +5770,129 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      system_update_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          device_id: string | null
+          id: string
+          message: string
+          resolved: boolean | null
+          resolved_at: string | null
+          severity: string
+          tenant_id: number
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          message: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          severity: string
+          tenant_id: number
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          message?: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          severity?: string
+          tenant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_update_alerts_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "system_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_update_history: {
+        Row: {
+          attempt_number: number | null
+          device_id: string
+          error_code: string | null
+          id: string
+          is_deleted: boolean | null
+          kb_number: string
+          logs: string | null
+          performed_at: string
+          status: string
+          tenant_id: number
+        }
+        Insert: {
+          attempt_number?: number | null
+          device_id: string
+          error_code?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          kb_number: string
+          logs?: string | null
+          performed_at?: string
+          status: string
+          tenant_id: number
+        }
+        Update: {
+          attempt_number?: number | null
+          device_id?: string
+          error_code?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          kb_number?: string
+          logs?: string | null
+          performed_at?: string
+          status?: string
+          tenant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_update_history_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "system_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_update_ingest_logs: {
+        Row: {
+          device_id: string | null
+          id: string
+          ingested_at: string
+          payload: Json
+          tenant_id: number
+        }
+        Insert: {
+          device_id?: string | null
+          id?: string
+          ingested_at?: string
+          payload: Json
+          tenant_id: number
+        }
+        Update: {
+          device_id?: string | null
+          id?: string
+          ingested_at?: string
+          payload?: Json
+          tenant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_update_ingest_logs_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "system_devices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       system_updates: {
         Row: {
