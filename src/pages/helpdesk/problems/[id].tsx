@@ -260,6 +260,9 @@ export default function HelpdeskProblemDetail() {
             <Link className="h-5 w-5" />
             Linked Tickets ({linkedTickets?.length || 0})
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            All tickets related to this root cause problem
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {linkedTickets && linkedTickets.length > 0 && (

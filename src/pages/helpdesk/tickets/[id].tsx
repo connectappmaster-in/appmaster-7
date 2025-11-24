@@ -179,6 +179,11 @@ export default function TicketDetail() {
 
   const linkProblem = useMutation({
     mutationFn: async (problemId: string) => {
+      // Check if ticket already has a problem linked
+      if (linkedProblems && linkedProblems.length > 0) {
+        throw new Error("This ticket is already linked to a problem. Please unlink first.");
+      }
+      
       const { error } = await supabase
         .from("helpdesk_problem_tickets")
         .insert({
@@ -193,7 +198,7 @@ export default function TicketDetail() {
       queryClient.invalidateQueries({ queryKey: ["helpdesk-problem-tickets", ticketId] });
     },
     onError: (error: Error) => {
-      toast.error("Failed to link problem: " + error.message);
+      toast.error(error.message || "Failed to link problem");
     },
   });
 
@@ -211,6 +216,73 @@ export default function TicketDetail() {
     },
     onError: (error: Error) => {
       toast.error("Failed to unlink problem: " + error.message);
+    },
+  });
+
+  const createProblemFromTicket = useMutation({
+    mutationFn: async () => {
+      if (!ticket) throw new Error("Ticket not found");
+      if (linkedProblems && linkedProblems.length > 0) {
+        throw new Error("This ticket is already linked to a problem");
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: currentUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .single();
+
+      if (!currentUser) throw new Error("User not found");
+
+      // Generate problem number
+      const { data: problemNumber } = await supabase.rpc("generate_problem_number", {
+        p_tenant_id: ticket.tenant_id,
+        p_org_id: ticket.organisation_id,
+      });
+
+      // Create problem
+      const { data: newProblem, error: problemError } = await supabase
+        .from("helpdesk_problems")
+        .insert({
+          problem_number: problemNumber,
+          title: `Problem: ${ticket.title}`,
+          description: `Root cause analysis for ticket ${ticket.ticket_number}:\n\n${ticket.description}`,
+          priority: ticket.priority,
+          status: "investigating",
+          tenant_id: ticket.tenant_id,
+          organisation_id: ticket.organisation_id,
+          created_by: currentUser.id,
+          category_id: ticket.category_id,
+        })
+        .select()
+        .single();
+
+      if (problemError) throw problemError;
+
+      // Link ticket to problem
+      const { error: linkError } = await supabase
+        .from("helpdesk_problem_tickets")
+        .insert({
+          ticket_id: parseInt(ticketId!),
+          problem_id: newProblem.id,
+        });
+
+      if (linkError) throw linkError;
+
+      return newProblem;
+    },
+    onSuccess: (newProblem) => {
+      toast.success("Problem created and linked to ticket");
+      queryClient.invalidateQueries({ queryKey: ["helpdesk-problem-tickets", ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["helpdesk-problems"] });
+      // Navigate to the new problem
+      navigate(`/helpdesk/problems/${newProblem.id}`);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create problem");
     },
   });
 
@@ -365,6 +437,47 @@ export default function TicketDetail() {
 
                   <Separator />
 
+                  {linkedProblems && linkedProblems.length > 0 && (
+                    <>
+                      <div className="bg-muted/50 p-3 rounded-lg border">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            <Link className="h-4 w-4 text-primary" />
+                            <p className="font-medium text-sm">Linked Problem</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => unlinkProblem.mutate(linkedProblems[0].id)}
+                            className="h-6 px-2"
+                          >
+                            <Trash2 className="h-3 w-3 text-destructive" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {linkedProblems[0].problem?.problem_number}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {linkedProblems[0].problem?.status?.replace("_", " ")}
+                            </Badge>
+                          </div>
+                          <p className="text-sm">{linkedProblems[0].problem?.title}</p>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto p-0 text-xs"
+                            onClick={() => navigate(`/helpdesk/problems/${linkedProblems[0].problem.id}`)}
+                          >
+                            View Problem Details →
+                          </Button>
+                        </div>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+
                   <div className="flex items-start gap-2">
                     <User className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
@@ -509,51 +622,77 @@ export default function TicketDetail() {
               <TabsContent value="problems" className="mt-3">
                 <Card>
                   <CardContent className="pt-4 space-y-4">
-                    {linkedProblems && linkedProblems.length > 0 && (
+                    {linkedProblems && linkedProblems.length > 0 ? (
                       <div className="space-y-2">
-                        {linkedProblems.map((link: any) => (
-                          <div
-                            key={link.id}
-                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                          >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <Badge variant="outline" className="font-mono text-xs shrink-0">
-                                {link.problem?.problem_number}
-                              </Badge>
-                              <span className="text-sm font-medium truncate">
-                                {link.problem?.title}
-                              </span>
-                              <Badge variant="outline" className="text-xs capitalize shrink-0">
-                                {link.problem?.status?.replace("_", " ")}
-                              </Badge>
+                        <div className="bg-muted/50 p-4 rounded-lg border">
+                          <div className="flex items-start justify-between gap-2 mb-3">
+                            <div>
+                              <h4 className="font-medium">Linked Problem</h4>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                This ticket is part of a larger problem investigation
+                              </p>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => navigate(`/helpdesk/problems/${link.problem.id}`)}
-                              >
-                                View
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => unlinkProblem.mutate(link.id)}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => unlinkProblem.mutate(linkedProblems[0].id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
                           </div>
-                        ))}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="font-mono">
+                                {linkedProblems[0].problem?.problem_number}
+                              </Badge>
+                              <Badge variant="outline" className="capitalize">
+                                {linkedProblems[0].problem?.status?.replace("_", " ")}
+                              </Badge>
+                            </div>
+                            <p className="font-medium">{linkedProblems[0].problem?.title}</p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => navigate(`/helpdesk/problems/${linkedProblems[0].problem.id}`)}
+                            >
+                              View Problem Details
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                          No problem linked to this ticket yet
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                          <Button
+                            variant="outline"
+                            onClick={() => createProblemFromTicket.mutate()}
+                            disabled={createProblemFromTicket.isPending}
+                          >
+                            {createProblemFromTicket.isPending && (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Create Problem from Ticket
+                          </Button>
+                        </div>
                       </div>
                     )}
 
                     <Separator />
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Link Problem</label>
+                      <label className="text-sm font-medium">Link to Existing Problem</label>
+                      <p className="text-xs text-muted-foreground">
+                        Link this ticket to an existing problem if it's related to a known root cause
+                      </p>
                       <div className="flex gap-2">
-                        <Select value={selectedProblemId} onValueChange={setSelectedProblemId}>
+                        <Select 
+                          value={selectedProblemId} 
+                          onValueChange={setSelectedProblemId}
+                          disabled={linkedProblems && linkedProblems.length > 0}
+                        >
                           <SelectTrigger className="flex-1">
                             <SelectValue placeholder="Select a problem to link" />
                           </SelectTrigger>
@@ -572,12 +711,17 @@ export default function TicketDetail() {
                         </Select>
                         <Button
                           onClick={() => selectedProblemId && linkProblem.mutate(selectedProblemId)}
-                          disabled={!selectedProblemId || linkProblem.isPending}
+                          disabled={!selectedProblemId || linkProblem.isPending || (linkedProblems && linkedProblems.length > 0)}
                         >
                           {linkProblem.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                           Link
                         </Button>
                       </div>
+                      {linkedProblems && linkedProblems.length > 0 && (
+                        <p className="text-xs text-amber-600">
+                          Unlink the current problem before linking to a different one
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
