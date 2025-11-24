@@ -73,6 +73,7 @@ export const CreateProblemDialog = ({
         .maybeSingle();
 
       return {
+        authUserId: user.id,
         userId: userRecord?.id,
         organisationId: userRecord?.organisation_id,
         tenantId: profileData?.tenant_id || 1,
@@ -129,7 +130,7 @@ export const CreateProblemDialog = ({
         root_cause: data.root_cause || null,
         workaround: data.workaround || null,
         status: "open",
-        created_by: userData.userId,
+        created_by: userData.authUserId,
         organisation_id: userData.organisationId,
         tenant_id: userData.tenantId,
       });
