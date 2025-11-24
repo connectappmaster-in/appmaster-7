@@ -83,26 +83,27 @@ const HelpdeskSubscriptionLayout = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="w-full px-4 pt-2 pb-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <TabsList className="h-8">
-            {tabs.map((tab) => (
-              <TabsTrigger 
-                key={tab.value} 
-                value={isRootPath && tab.value === "/helpdesk/subscription" ? tab.value : currentPath}
-                onClick={() => handleTabChange(tab.value)}
-                className="gap-1.5 px-3 text-sm h-7"
-              >
-                <tab.icon className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{tab.label}</span>
-                {tab.count > 0 && (
-                  <Badge variant="secondary" className="ml-1.5 text-xs px-1.5 py-0">
-                    {tab.count}
-                  </Badge>
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+        <Tabs value={isRootPath ? "/helpdesk/subscription" : currentPath} onValueChange={handleTabChange}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <TabsList className="h-8">
+              {tabs.map((tab) => (
+                <TabsTrigger 
+                  key={tab.value} 
+                  value={tab.value}
+                  className="gap-1.5 px-3 text-sm h-7"
+                >
+                  <tab.icon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  {tab.count > 0 && (
+                    <Badge variant="secondary" className="ml-1.5 text-xs px-1.5 py-0">
+                      {tab.count}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+        </Tabs>
         
         <div className="mt-2">
           <Outlet />
