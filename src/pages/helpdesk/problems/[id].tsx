@@ -30,6 +30,20 @@ export default function HelpdeskProblemDetail() {
     enabled: !!id,
   });
 
+  const { data: createdByUser } = useQuery({
+    queryKey: ["problem-created-by", problem?.created_by],
+    queryFn: async () => {
+      if (!problem?.created_by) return null;
+      const { data } = await supabase
+        .from("users")
+        .select("name, email")
+        .eq("id", problem.created_by)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!problem?.created_by,
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -107,6 +121,10 @@ export default function HelpdeskProblemDetail() {
             <div>
               <div className="text-muted-foreground">Assigned to</div>
               <div>{problem.assigned_to || "Unassigned"}</div>
+            </div>
+            <div>
+              <div className="text-muted-foreground">Created by</div>
+              <div>{createdByUser?.name || createdByUser?.email || problem.created_by || "Unknown"}</div>
             </div>
             <div>
               <div className="text-muted-foreground">Created at</div>

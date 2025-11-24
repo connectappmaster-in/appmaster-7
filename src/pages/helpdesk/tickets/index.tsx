@@ -39,7 +39,7 @@ export default function TicketsModule() {
       const {
         data,
         error
-      } = await supabase.from('helpdesk_tickets').select('*, category:helpdesk_categories(name), assignee:users!helpdesk_tickets_assignee_id_fkey(name)').order('created_at', {
+      } = await supabase.from('helpdesk_tickets').select('*, category:helpdesk_categories(name), assignee:users!helpdesk_tickets_assignee_id_fkey(name), created_by_user:users!helpdesk_tickets_created_by_fkey(name, email)').order('created_at', {
         ascending: false
       });
       if (error) throw error;
@@ -79,6 +79,26 @@ export default function TicketsModule() {
         `)
         .order('created_at', { ascending: false });
       if (error) throw error;
+      
+      // Fetch created_by users separately
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map(p => p.created_by).filter(Boolean))];
+        if (userIds.length > 0) {
+          const { data: users } = await supabase
+            .from('users')
+            .select('id, name, email')
+            .in('id', userIds);
+          
+          if (users) {
+            const userMap = Object.fromEntries(users.map(u => [u.id, u]));
+            return data.map(problem => ({
+              ...problem,
+              created_by_user: problem.created_by ? userMap[problem.created_by] : null
+            }));
+          }
+        }
+      }
+      
       return data || [];
     }
   });
