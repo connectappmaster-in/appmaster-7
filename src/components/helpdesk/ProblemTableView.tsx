@@ -99,7 +99,9 @@ export const ProblemTableView = ({
                 </Badge>
               </TableCell>
               <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
-                {problem.assignee?.name || (
+                {problem.assigned_to ? (
+                  <span>{problem.assigned_to}</span>
+                ) : (
                   <span className="text-muted-foreground italic">Unassigned</span>
                 )}
               </TableCell>

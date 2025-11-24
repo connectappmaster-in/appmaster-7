@@ -71,13 +71,13 @@ export default function TicketsModule() {
       const {
         data,
         error
-      } = await supabase.from('helpdesk_problems').select(`
-        *,
-        category:helpdesk_categories(name),
-        assignee:users!helpdesk_problems_assigned_to_fkey(name)
-      `).order('created_at', {
-        ascending: false
-      });
+      } = await supabase
+        .from('helpdesk_problems')
+        .select(`
+          *,
+          category:helpdesk_categories(name)
+        `)
+        .order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     }
