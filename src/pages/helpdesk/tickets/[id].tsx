@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Loader2, Clock, User, Tag, MessageSquare, Edit, UserPlus, FileText, His
 import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EditTicketDialog } from "@/components/helpdesk/EditTicketDialog";
 import { AssignTicketDialog } from "@/components/helpdesk/AssignTicketDialog";
 
@@ -19,10 +19,27 @@ export default function TicketDetail() {
   const { id: ticketId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [comment, setComment] = useState("");
   const [newStatus, setNewStatus] = useState("");
   const [editDialog, setEditDialog] = useState(false);
   const [assignDialog, setAssignDialog] = useState(false);
+
+  // Open edit or assign dialog based on URL params
+  useEffect(() => {
+    if (searchParams.get("edit") === "true") {
+      setEditDialog(true);
+      // Remove the edit param from URL
+      searchParams.delete("edit");
+      setSearchParams(searchParams, { replace: true });
+    }
+    if (searchParams.get("assign") === "true") {
+      setAssignDialog(true);
+      // Remove the assign param from URL
+      searchParams.delete("assign");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const { data: ticket, isLoading } = useQuery({
     queryKey: ["helpdesk-ticket", ticketId],
