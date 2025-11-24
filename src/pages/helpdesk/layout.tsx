@@ -48,6 +48,8 @@ const HelpdeskLayout = () => {
   let pageTitle = routeTitles[location.pathname] || "IT Helpdesk";
   if (location.pathname.startsWith("/helpdesk/tickets/") && location.pathname !== "/helpdesk/tickets") {
     pageTitle = "Ticket Details";
+  } else if (location.pathname.startsWith("/helpdesk/problems/") && location.pathname !== "/helpdesk/problems") {
+    pageTitle = "Problem Details";
   }
 
   return (
