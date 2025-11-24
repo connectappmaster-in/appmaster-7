@@ -15,6 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EditTicketDialog } from "@/components/helpdesk/EditTicketDialog";
 import { AssignTicketDialog } from "@/components/helpdesk/AssignTicketDialog";
+import { EditProblemDialog } from "@/components/helpdesk/EditProblemDialog";
+import { AssignProblemDialog } from "@/components/helpdesk/AssignProblemDialog";
+import { ProblemTableView } from "@/components/helpdesk/ProblemTableView";
 
 export default function TicketsModule() {
   const navigate = useNavigate();
@@ -24,6 +27,9 @@ export default function TicketsModule() {
   const [filters, setFilters] = useState<Record<string, any>>({});
   const [editTicket, setEditTicket] = useState<any>(null);
   const [assignTicket, setAssignTicket] = useState<any>(null);
+  const [editProblem, setEditProblem] = useState<any>(null);
+  const [assignProblem, setAssignProblem] = useState<any>(null);
+  const [selectedProblemIds, setSelectedProblemIds] = useState<number[]>([]);
   const {
     data: allTickets,
     isLoading
@@ -65,7 +71,11 @@ export default function TicketsModule() {
       const {
         data,
         error
-      } = await supabase.from('helpdesk_problems').select('*').order('created_at', {
+      } = await supabase.from('helpdesk_problems').select(`
+        *,
+        category:helpdesk_categories(name),
+        assignee:users!helpdesk_problems_assigned_to_fkey(name)
+      `).order('created_at', {
         ascending: false
       });
       if (error) throw error;
@@ -78,6 +88,12 @@ export default function TicketsModule() {
   };
   const handleSelectAll = (checked: boolean) => {
     setSelectedIds(checked ? tickets.map((t: any) => t.id) : []);
+  };
+  const handleSelectProblem = (id: number) => {
+    setSelectedProblemIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+  const handleSelectAllProblems = (checked: boolean) => {
+    setSelectedProblemIds(checked ? problems.map((p: any) => p.id) : []);
   };
   const quickLinks: any[] = [];
   return <div className="min-h-screen bg-background">
@@ -210,29 +226,14 @@ export default function TicketsModule() {
                   <Plus className="h-3.5 w-3.5" />
                   <span className="text-sm">Create First Problem</span>
                 </Button>
-              </div> : <div className="space-y-1.5">
-                {problems.map((problem: any) => <div key={problem.id} className="hover:bg-accent/50 transition-colors cursor-pointer p-3 rounded-md border" onClick={() => navigate(`/helpdesk/problems/${problem.id}`)}>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <Badge variant="outline" className="font-mono text-[10px] h-5 px-1.5">
-                        {problem.problem_number}
-                      </Badge>
-                      <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
-                        {problem.status}
-                      </Badge>
-                      <Badge className={`text-[10px] h-5 px-1.5 ${problem.priority === 'urgent' ? 'bg-red-500 hover:bg-red-600' : problem.priority === 'high' ? 'bg-orange-500 hover:bg-orange-600' : problem.priority === 'medium' ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'}`}>
-                        {problem.priority}
-                      </Badge>
-                    </div>
-                    <h3 className="text-sm font-medium mb-0.5">{problem.title}</h3>
-                    <p className="text-xs text-muted-foreground line-clamp-1 mb-1">
-                      {problem.description}
-                    </p>
-                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                      <span>Created {new Date(problem.created_at).toLocaleDateString()}</span>
-                      {problem.linked_ticket_ids && problem.linked_ticket_ids.length > 0 && <span>• {problem.linked_ticket_ids.length} linked tickets</span>}
-                    </div>
-                  </div>)}
-              </div>}
+              </div> : <ProblemTableView 
+                problems={problems} 
+                selectedIds={selectedProblemIds} 
+                onSelectProblem={handleSelectProblem} 
+                onSelectAll={handleSelectAllProblems}
+                onEditProblem={setEditProblem}
+                onAssignProblem={setAssignProblem}
+              />}
           </TabsContent>
         </Tabs>
 
@@ -249,6 +250,20 @@ export default function TicketsModule() {
             open={!!assignTicket} 
             onOpenChange={(open) => !open && setAssignTicket(null)}
             ticket={assignTicket}
+          />
+        )}
+        {editProblem && (
+          <EditProblemDialog 
+            open={!!editProblem} 
+            onOpenChange={(open) => !open && setEditProblem(null)}
+            problem={editProblem}
+          />
+        )}
+        {assignProblem && (
+          <AssignProblemDialog 
+            open={!!assignProblem} 
+            onOpenChange={(open) => !open && setAssignProblem(null)}
+            problem={assignProblem}
           />
         )}
       </div>
