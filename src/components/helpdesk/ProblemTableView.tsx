@@ -57,7 +57,7 @@ export const ProblemTableView = ({
               />
             </TableHead>
             <TableHead className="py-2">Problem #</TableHead>
-            <TableHead className="py-2 w-[35%]">Title</TableHead>
+            <TableHead className="py-2">Title</TableHead>
             <TableHead className="py-2">Status</TableHead>
             <TableHead className="py-2">Priority</TableHead>
             <TableHead className="py-2">Assignee</TableHead>
@@ -81,8 +81,8 @@ export const ProblemTableView = ({
                   {problem.problem_number}
                 </span>
               </TableCell>
-              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5 w-[35%]">
-                <div className="max-w-full">
+              <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
+                <div className="max-w-sm">
                   <div className="font-medium truncate text-[0.85rem]">{problem.title}</div>
                   <div className="text-[0.75rem] text-muted-foreground truncate">
                     {problem.description}
