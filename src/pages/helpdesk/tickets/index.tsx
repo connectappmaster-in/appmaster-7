@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Ticket, AlertTriangle, Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateProblemDialog } from "@/components/helpdesk/CreateProblemDialog";
@@ -21,7 +21,15 @@ import { ProblemTableView } from "@/components/helpdesk/ProblemTableView";
 
 export default function TicketsModule() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("tickets");
+
+  // Set active tab based on route
+  useEffect(() => {
+    if (location.pathname === "/helpdesk/problems") {
+      setActiveTab("problems");
+    }
+  }, [location.pathname]);
   const [createProblemOpen, setCreateProblemOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [filters, setFilters] = useState<Record<string, any>>({});

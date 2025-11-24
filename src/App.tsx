@@ -28,7 +28,6 @@ import TicketDetail from "./pages/helpdesk/tickets/[id]";
 import NewTicket from "./pages/helpdesk/new";
 import HelpdeskAssets from "./pages/helpdesk/assets";
 import HelpdeskKB from "./pages/helpdesk/kb";
-import HelpdeskProblems from "./pages/helpdesk/problems";
 import HelpdeskProblemDetail from "./pages/helpdesk/problems/[id]";
 import HelpdeskChanges from "./pages/helpdesk/changes";
 import HelpdeskAutomation from "./pages/helpdesk/automation";
@@ -163,7 +162,7 @@ const App = () => {
             <Route path="monitoring" element={<HelpdeskMonitoring />} />
             <Route path="reports" element={<HelpdeskReports />} />
             <Route path="audit" element={<HelpdeskAudit />} />
-            <Route path="problems" element={<HelpdeskProblems />} />
+            <Route path="problems" element={<HelpdeskTickets />} />
             <Route path="problems/:id" element={<HelpdeskProblemDetail />} />
             <Route path="changes" element={<HelpdeskChanges />} />
             <Route path="automation" element={<HelpdeskAutomation />} />
