@@ -4974,6 +4974,133 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          is_deleted: boolean | null
+          notes: string | null
+          resolved: boolean | null
+          resolved_date: string | null
+          subscription_id: string | null
+          tenant_id: number
+          trigger_date: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean | null
+          notes?: string | null
+          resolved?: boolean | null
+          resolved_date?: string | null
+          subscription_id?: string | null
+          tenant_id: number
+          trigger_date?: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean | null
+          notes?: string | null
+          resolved?: boolean | null
+          resolved_date?: string | null
+          subscription_id?: string | null
+          tenant_id?: number
+          trigger_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_alerts_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_deleted: boolean | null
+          name: string
+          tenant_id: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          name: string
+          tenant_id: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          name?: string
+          tenant_id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_cost_history: {
+        Row: {
+          billing_period_end: string
+          billing_period_start: string
+          cost: number
+          created_at: string
+          currency: string
+          id: string
+          invoice_number: string | null
+          is_deleted: boolean | null
+          paid_date: string | null
+          subscription_id: string
+          tenant_id: number
+        }
+        Insert: {
+          billing_period_end: string
+          billing_period_start: string
+          cost: number
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_number?: string | null
+          is_deleted?: boolean | null
+          paid_date?: string | null
+          subscription_id: string
+          tenant_id: number
+        }
+        Update: {
+          billing_period_end?: string
+          billing_period_start?: string
+          cost?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_number?: string | null
+          is_deleted?: boolean | null
+          paid_date?: string | null
+          subscription_id?: string
+          tenant_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_cost_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           created_at: string | null
@@ -5282,6 +5409,7 @@ export type Database = {
           auto_renew: boolean | null
           billing_cycle_months: number | null
           category: string | null
+          category_id: string | null
           contract_file_id: string | null
           cost: number
           created_at: string | null
@@ -5305,6 +5433,7 @@ export type Database = {
           auto_renew?: boolean | null
           billing_cycle_months?: number | null
           category?: string | null
+          category_id?: string | null
           contract_file_id?: string | null
           cost?: number
           created_at?: string | null
@@ -5328,6 +5457,7 @@ export type Database = {
           auto_renew?: boolean | null
           billing_cycle_months?: number | null
           category?: string | null
+          category_id?: string | null
           contract_file_id?: string | null
           cost?: number
           created_at?: string | null
@@ -5348,6 +5478,13 @@ export type Database = {
           vendor_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "subscriptions_tools_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscriptions_tools_organisation_id_fkey"
             columns: ["organisation_id"]
