@@ -201,7 +201,7 @@ export default function TicketsModule() {
             )}
 
             {activeTab === 'problems' && (
-              <Button variant="outline" size="sm" onClick={() => setCreateProblemOpen(true)} className="gap-1.5 h-8 ml-auto">
+              <Button size="sm" onClick={() => setCreateProblemOpen(true)} className="gap-1.5 h-8 ml-auto">
                 <Plus className="h-3.5 w-3.5" />
                 <span className="text-sm">New Problem</span>
               </Button>
