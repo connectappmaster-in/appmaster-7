@@ -78,9 +78,9 @@ export const TicketTableView = ({
                 />
               </TableCell>
               <TableCell onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)} className="py-1.5">
-                <Badge variant="outline" className="font-mono text-[0.75rem] px-1.5 py-0.5">
+                <span className="font-mono text-[0.85rem]">
                   {ticket.ticket_number}
-                </Badge>
+                </span>
               </TableCell>
               <TableCell onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)} className="py-1.5">
                 <div className="max-w-xs">
