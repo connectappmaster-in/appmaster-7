@@ -171,10 +171,15 @@ export default function HelpdeskProblemDetail() {
             <Badge variant="outline">{problem.category.name}</Badge>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate("/helpdesk/problems")}>
+            All Problems
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </div>
       </div>
 
       <Card>

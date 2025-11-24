@@ -356,6 +356,14 @@ export default function TicketDetail() {
           </div>
 
           <div className="flex gap-2 shrink-0 items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/helpdesk/tickets")}
+              className="h-8"
+            >
+              All Tickets
+            </Button>
             <Select
               value={newStatus || ticket.status}
               onValueChange={(value) => {
