@@ -121,7 +121,7 @@ export const TicketTableView = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
+                    onClick={() => navigate(`/helpdesk/tickets/${ticket.id}?edit=true`)}
                     title="Edit"
                   >
                     <Edit className="h-4 w-4" />
@@ -131,7 +131,7 @@ export const TicketTableView = ({
                     size="icon"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // TODO: Open assign dialog
+                      navigate(`/helpdesk/tickets/${ticket.id}?assign=true`);
                     }}
                     title="Assign"
                   >
