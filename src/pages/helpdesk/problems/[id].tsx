@@ -4,18 +4,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Link, Trash2 } from "lucide-react";
+import { Loader2, ArrowLeft, Link, Trash2, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { EditProblemDialog } from "@/components/helpdesk/EditProblemDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function HelpdeskProblemDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedTicketId, setSelectedTicketId] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data: problem, isLoading } = useQuery({
     queryKey: ["helpdesk-problem", id],
@@ -43,11 +56,25 @@ export default function HelpdeskProblemDetail() {
       const { data } = await supabase
         .from("users")
         .select("name, email")
-        .eq("id", problem.created_by)
+        .eq("auth_user_id", problem.created_by)
         .maybeSingle();
       return data;
     },
     enabled: !!problem?.created_by,
+  });
+
+  const { data: assignedToUser } = useQuery({
+    queryKey: ["problem-assignee", problem?.assigned_to],
+    queryFn: async () => {
+      if (!problem?.assigned_to) return null;
+      const { data } = await supabase
+        .from("users")
+        .select("name, email")
+        .eq("auth_user_id", problem.assigned_to)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!problem?.assigned_to,
   });
 
   const { data: linkedTickets } = useQuery({
@@ -115,6 +142,24 @@ export default function HelpdeskProblemDetail() {
     },
   });
 
+  const deleteProblem = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("helpdesk_problems")
+        .update({ is_deleted: true, updated_at: new Date().toISOString() })
+        .eq("id", Number(id));
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Problem deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["helpdesk-problems"] });
+      navigate("/helpdesk/problems");
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to delete problem: " + error.message);
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -175,9 +220,17 @@ export default function HelpdeskProblemDetail() {
           <Button variant="outline" size="sm" onClick={() => navigate("/helpdesk/problems")}>
             All Problems
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+          <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </Button>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
           </Button>
         </div>
       </div>
@@ -196,11 +249,19 @@ export default function HelpdeskProblemDetail() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <div className="text-muted-foreground">Assigned to</div>
-              <div>{problem.assigned_to || "Unassigned"}</div>
+              <div>
+                {assignedToUser?.name ||
+                  assignedToUser?.email ||
+                  (problem.assigned_to || "Unassigned")}
+              </div>
             </div>
             <div>
               <div className="text-muted-foreground">Created by</div>
-              <div>{createdByUser?.name || createdByUser?.email || problem.created_by || "Unknown"}</div>
+              <div>
+                {createdByUser?.name ||
+                  createdByUser?.email ||
+                  (problem.created_by || "Unknown")}
+              </div>
             </div>
             <div>
               <div className="text-muted-foreground">Created at</div>
@@ -342,6 +403,35 @@ export default function HelpdeskProblemDetail() {
           </div>
         </CardContent>
       </Card>
+
+      {problem && (
+        <EditProblemDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          problem={problem}
+        />
+      )}
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Problem?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the problem
+              "{problem?.title}" and all its linked tickets.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteProblem.mutate()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteProblem.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

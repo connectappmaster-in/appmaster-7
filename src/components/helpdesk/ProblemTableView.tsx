@@ -28,9 +28,10 @@ export const ProblemTableView = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'open': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'investigating': return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'in_progress': return 'bg-purple-100 text-purple-800 border-purple-300';
       case 'resolved': return 'bg-green-100 text-green-800 border-green-300';
       case 'closed': return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'known_error': return 'bg-red-100 text-red-800 border-red-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
@@ -100,14 +101,20 @@ export const ProblemTableView = ({
                 </Badge>
               </TableCell>
               <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
-                {problem.assigned_to ? (
-                  <span className="text-[0.85rem]">{problem.assigned_to}</span>
+                {problem.assigned_to_user ? (
+                  <span className="text-[0.85rem]">
+                    {problem.assigned_to_user.name || problem.assigned_to_user.email}
+                  </span>
                 ) : (
                   <span className="text-muted-foreground italic text-[0.8rem]">Unassigned</span>
                 )}
               </TableCell>
               <TableCell onClick={() => navigate(`/helpdesk/problems/${problem.id}`)} className="py-1.5">
-                {problem.created_by_user?.name || problem.created_by_user?.email || (
+                {problem.created_by_user ? (
+                  <span className="text-[0.85rem]">
+                    {problem.created_by_user.name || problem.created_by_user.email}
+                  </span>
+                ) : (
                   <span className="text-muted-foreground italic text-[0.8rem]">Unknown</span>
                 )}
               </TableCell>
