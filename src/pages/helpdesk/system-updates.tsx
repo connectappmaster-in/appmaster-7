@@ -407,21 +407,43 @@ export default function SystemUpdates() {
               {/* Agent Download Section */}
               <div className="space-y-3 pb-4 border-b">
                 <div>
-                  <Label className="text-base font-semibold">Device Update Agent</Label>
+                  <Label className="text-base font-semibold">AppMaster Device Agent</Label>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Download and deploy the PowerShell agent to devices for automated update tracking
+                    Download and deploy the Windows service agent for continuous device monitoring
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button 
                     variant="outline" 
                     className="w-full justify-start gap-2"
-                    onClick={() => handleDownloadFile('device-update-agent.ps1')}
+                    onClick={() => handleDownloadFile('AppMaster-Agent-Service.ps1')}
                   >
                     <FileDown className="h-4 w-4" />
                     <div className="flex flex-col items-start">
-                      <span className="font-medium">device-update-agent.ps1</span>
-                      <span className="text-xs text-muted-foreground">PowerShell script for Windows devices</span>
+                      <span className="font-medium">AppMaster-Agent-Service.ps1</span>
+                      <span className="text-xs text-muted-foreground">Main service script (runs in background)</span>
+                    </div>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start gap-2"
+                    onClick={() => handleDownloadFile('Install-AppMaster-Service.ps1')}
+                  >
+                    <FileDown className="h-4 w-4" />
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">Install-AppMaster-Service.ps1</span>
+                      <span className="text-xs text-muted-foreground">Service installer (run as Administrator)</span>
+                    </div>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start gap-2"
+                    onClick={() => handleDownloadFile('Uninstall-AppMaster-Service.ps1')}
+                  >
+                    <FileDown className="h-4 w-4" />
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">Uninstall-AppMaster-Service.ps1</span>
+                      <span className="text-xs text-muted-foreground">Service uninstaller (run as Administrator)</span>
                     </div>
                   </Button>
                   <Button 
@@ -432,7 +454,7 @@ export default function SystemUpdates() {
                     <FileDown className="h-4 w-4" />
                     <div className="flex flex-col items-start">
                       <span className="font-medium">README-DEVICE-AGENT.md</span>
-                      <span className="text-xs text-muted-foreground">Installation and setup instructions</span>
+                      <span className="text-xs text-muted-foreground">Installation guide and documentation</span>
                     </div>
                   </Button>
                 </div>
