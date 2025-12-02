@@ -414,49 +414,19 @@ export default function SystemUpdates() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button 
-                    variant="outline" 
+                    variant="default" 
                     className="w-full justify-start gap-2"
-                    onClick={() => handleDownloadFile('AppMaster-Agent-Service.ps1')}
+                    onClick={() => handleDownloadFile('AppMaster-Agent.ps1')}
                   >
                     <FileDown className="h-4 w-4" />
                     <div className="flex flex-col items-start">
-                      <span className="font-medium">AppMaster-Agent-Service.ps1</span>
-                      <span className="text-xs text-muted-foreground">Main service script (runs in background)</span>
+                      <span className="font-medium">AppMaster-Agent.ps1</span>
+                      <span className="text-xs text-muted-foreground/80">All-in-one installer & service (run as Administrator)</span>
                     </div>
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start gap-2"
-                    onClick={() => handleDownloadFile('Install-AppMaster-Service.ps1')}
-                  >
-                    <FileDown className="h-4 w-4" />
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">Install-AppMaster-Service.ps1</span>
-                      <span className="text-xs text-muted-foreground">Service installer (run as Administrator)</span>
-                    </div>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start gap-2"
-                    onClick={() => handleDownloadFile('Uninstall-AppMaster-Service.ps1')}
-                  >
-                    <FileDown className="h-4 w-4" />
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">Uninstall-AppMaster-Service.ps1</span>
-                      <span className="text-xs text-muted-foreground">Service uninstaller (run as Administrator)</span>
-                    </div>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start gap-2"
-                    onClick={() => handleDownloadFile('README-DEVICE-AGENT.md')}
-                  >
-                    <FileDown className="h-4 w-4" />
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">README-DEVICE-AGENT.md</span>
-                      <span className="text-xs text-muted-foreground">Installation guide and documentation</span>
-                    </div>
-                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Run with <code className="bg-muted px-1 rounded">-Uninstall</code> flag to remove the service
+                  </p>
                 </div>
               </div>
 
