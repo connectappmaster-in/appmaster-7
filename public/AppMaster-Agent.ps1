@@ -1,5 +1,6 @@
-# AppMaster Device Agent Service
-# Runs continuously as a Windows Service, sends heartbeats and executes remote tasks
+# AppMaster Device Agent
+# Single-file agent that installs itself as a Windows Service and runs continuously
+# Run as Administrator to install, or it runs automatically as a service
 
 # === CONFIGURATION ===
 $API_ENDPOINT = "https://zxtpfrgsfuiwdppgiliv.supabase.co/functions/v1/device-agent"
@@ -8,6 +9,9 @@ $ORGANISATION_ID = "28374dab-a447-44e2-a65f-edc644553b31"
 $HEARTBEAT_INTERVAL = 60  # seconds
 $TASK_CHECK_INTERVAL = 30  # seconds
 $AGENT_VERSION = "1.0.0"
+$SERVICE_NAME = "AppMaster_Agent"
+$DISPLAY_NAME = "AppMaster Device Agent"
+$DESCRIPTION = "AppMaster device monitoring and management agent"
 
 # === LOGGING ===
 $LogPath = "C:\ProgramData\AppMaster\Logs"
@@ -24,7 +28,121 @@ function Write-Log {
     Write-Host $logMessage
 }
 
-# === DEVICE INFORMATION ===
+# === CHECK IF RUNNING AS SERVICE OR INTERACTIVE ===
+$isInteractive = [Environment]::UserInteractive
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+# If running interactively, handle installation
+if ($isInteractive) {
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host " AppMaster Device Agent Installer" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+    
+    if (-not $isAdmin) {
+        Write-Host "ERROR: This script must be run as Administrator" -ForegroundColor Red
+        Write-Host "Right-click PowerShell and select 'Run as Administrator'" -ForegroundColor Yellow
+        Write-Host ""
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+    
+    # Check for uninstall parameter
+    $uninstall = $args -contains "-Uninstall" -or $args -contains "-u"
+    
+    if ($uninstall) {
+        Write-Host "Uninstalling AppMaster Agent..." -ForegroundColor Yellow
+        
+        $service = Get-Service -Name $SERVICE_NAME -ErrorAction SilentlyContinue
+        if ($service) {
+            if ($service.Status -eq 'Running') {
+                Stop-Service -Name $SERVICE_NAME -Force
+                Write-Host "  Service stopped" -ForegroundColor Green
+            }
+            & sc.exe delete $SERVICE_NAME | Out-Null
+            Start-Sleep -Seconds 2
+            Write-Host "  Service removed" -ForegroundColor Green
+        } else {
+            Write-Host "  Service not found" -ForegroundColor Yellow
+        }
+        
+        Write-Host ""
+        Write-Host "Uninstallation complete!" -ForegroundColor Green
+        Write-Host ""
+        Read-Host "Press Enter to exit"
+        exit 0
+    }
+    
+    # Installation mode
+    Write-Host "Installing AppMaster Agent as Windows Service..." -ForegroundColor Yellow
+    Write-Host ""
+    
+    # Create installation directory
+    $installPath = "C:\ProgramData\AppMaster"
+    if (-not (Test-Path $installPath)) {
+        New-Item -ItemType Directory -Path $installPath -Force | Out-Null
+        Write-Host "[1/4] Created directory: $installPath" -ForegroundColor Gray
+    } else {
+        Write-Host "[1/4] Directory exists: $installPath" -ForegroundColor Gray
+    }
+    
+    # Copy this script to install location
+    $scriptPath = $MyInvocation.MyCommand.Path
+    $installedScript = Join-Path $installPath "AppMaster-Agent.ps1"
+    Copy-Item -Path $scriptPath -Destination $installedScript -Force
+    Write-Host "[2/4] Copied agent to: $installedScript" -ForegroundColor Gray
+    
+    # Remove existing service if present
+    $existingService = Get-Service -Name $SERVICE_NAME -ErrorAction SilentlyContinue
+    if ($existingService) {
+        Write-Host "[3/4] Removing existing service..." -ForegroundColor Gray
+        if ($existingService.Status -eq 'Running') {
+            Stop-Service -Name $SERVICE_NAME -Force
+        }
+        & sc.exe delete $SERVICE_NAME | Out-Null
+        Start-Sleep -Seconds 2
+    } else {
+        Write-Host "[3/4] No existing service found" -ForegroundColor Gray
+    }
+    
+    # Install as service
+    Write-Host "[4/4] Installing service..." -ForegroundColor Gray
+    
+    $serviceBinary = "powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File `"$installedScript`""
+    
+    New-Service -Name $SERVICE_NAME `
+        -BinaryPathName $serviceBinary `
+        -DisplayName $DISPLAY_NAME `
+        -Description $DESCRIPTION `
+        -StartupType Automatic | Out-Null
+    
+    # Start the service
+    Start-Service -Name $SERVICE_NAME
+    Start-Sleep -Seconds 2
+    
+    $service = Get-Service -Name $SERVICE_NAME
+    
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "Installation Complete!" -ForegroundColor Green
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Service Name: $SERVICE_NAME" -ForegroundColor White
+    Write-Host "Status: $($service.Status)" -ForegroundColor $(if ($service.Status -eq 'Running') { "Green" } else { "Yellow" })
+    Write-Host "Install Path: $installPath" -ForegroundColor White
+    Write-Host ""
+    Write-Host "Commands:" -ForegroundColor Yellow
+    Write-Host "  Check status:  Get-Service -Name $SERVICE_NAME" -ForegroundColor Gray
+    Write-Host "  View logs:     Get-Content $LogFile -Tail 50" -ForegroundColor Gray
+    Write-Host "  Uninstall:     .\AppMaster-Agent.ps1 -Uninstall" -ForegroundColor Gray
+    Write-Host ""
+    Read-Host "Press Enter to exit"
+    exit 0
+}
+
+# === SERVICE MODE - AGENT FUNCTIONS ===
+
 function Get-DeviceInfo {
     try {
         $computerInfo = Get-ComputerInfo
@@ -43,7 +161,6 @@ function Get-DeviceInfo {
     }
 }
 
-# === UPDATE FUNCTIONS ===
 function Get-PendingUpdates {
     try {
         $updateSession = New-Object -ComObject Microsoft.Update.Session
@@ -126,7 +243,6 @@ function Get-FailedUpdates {
     }
 }
 
-# === API COMMUNICATION ===
 function Send-Heartbeat {
     param($DeviceInfo, $DeviceId = $null)
     
@@ -145,7 +261,7 @@ function Send-Heartbeat {
         }
         
         $response = Invoke-RestMethod -Uri $API_ENDPOINT -Method Post -Headers $headers -Body $payload -TimeoutSec 30
-        Write-Log "Heartbeat sent successfully. Device ID: $($response.device_id)" "INFO"
+        Write-Log "Heartbeat sent. Device ID: $($response.device_id)" "INFO"
         return $response.device_id
     }
     catch {
@@ -207,7 +323,7 @@ function Get-PendingTasks {
         return $response.tasks
     }
     catch {
-        Write-Log "Failed to get pending tasks: $_" "ERROR"
+        Write-Log "Failed to get tasks: $_" "ERROR"
         return @()
     }
 }
@@ -229,15 +345,14 @@ function Send-TaskResult {
             "Content-Type" = "application/json"
         }
         
-        $response = Invoke-RestMethod -Uri $API_ENDPOINT -Method Post -Headers $headers -Body $payload -TimeoutSec 30
-        Write-Log "Task result sent for task $TaskId" "INFO"
+        Invoke-RestMethod -Uri $API_ENDPOINT -Method Post -Headers $headers -Body $payload -TimeoutSec 30
+        Write-Log "Task result sent for $TaskId" "INFO"
     }
     catch {
         Write-Log "Failed to send task result: $_" "ERROR"
     }
 }
 
-# === TASK EXECUTION ===
 function Execute-Task {
     param($Task)
     
@@ -246,17 +361,14 @@ function Execute-Task {
     try {
         switch ($Task.task_type) {
             "restart" {
-                Write-Log "Restarting computer..." "INFO"
                 Send-TaskResult -TaskId $Task.id -Status "completed" -Result @{ message = "Restart initiated" }
                 Start-Sleep -Seconds 5
                 Restart-Computer -Force
             }
-            
             "install_update" {
                 $kbNumber = $Task.task_payload.kb_number
                 Write-Log "Installing update: $kbNumber" "INFO"
                 
-                # Trigger Windows Update installation
                 $updateSession = New-Object -ComObject Microsoft.Update.Session
                 $updateSearcher = $updateSession.CreateUpdateSearcher()
                 $searchResult = $updateSearcher.Search("IsInstalled=0")
@@ -281,38 +393,29 @@ function Execute-Task {
                     Send-TaskResult -TaskId $Task.id -Status "failed" -Result @{} -ErrorMessage "Update not found"
                 }
             }
-            
             "run_script" {
                 $script = $Task.task_payload.script
-                Write-Log "Running custom script" "INFO"
-                
                 $output = Invoke-Expression $script 2>&1 | Out-String
                 Send-TaskResult -TaskId $Task.id -Status "completed" -Result @{ output = $output }
             }
-            
             "collect_logs" {
-                Write-Log "Collecting system logs" "INFO"
-                
                 $logs = Get-EventLog -LogName System -Newest 100 | Select-Object TimeGenerated, EntryType, Source, Message
                 Send-TaskResult -TaskId $Task.id -Status "completed" -Result @{ logs = $logs }
             }
-            
             default {
-                Write-Log "Unknown task type: $($Task.task_type)" "WARN"
                 Send-TaskResult -TaskId $Task.id -Status "failed" -Result @{} -ErrorMessage "Unknown task type"
             }
         }
     }
     catch {
-        Write-Log "Task execution failed: $_" "ERROR"
+        Write-Log "Task failed: $_" "ERROR"
         Send-TaskResult -TaskId $Task.id -Status "failed" -Result @{} -ErrorMessage $_.ToString()
     }
 }
 
 # === MAIN SERVICE LOOP ===
 Write-Log "========================================" "INFO"
-Write-Log "AppMaster Device Agent Service Started" "INFO"
-Write-Log "Version: $AGENT_VERSION" "INFO"
+Write-Log "AppMaster Agent Started (v$AGENT_VERSION)" "INFO"
 Write-Log "========================================" "INFO"
 
 $deviceId = $null
@@ -323,59 +426,49 @@ $lastTaskCheck = [DateTime]::MinValue
 while ($true) {
     try {
         $now = Get-Date
-        
-        # Get device info
         $deviceInfo = Get-DeviceInfo
+        
         if ($null -eq $deviceInfo) {
-            Write-Log "Failed to get device info, retrying in 30 seconds" "ERROR"
             Start-Sleep -Seconds 30
             continue
         }
         
-        # Send heartbeat every minute
+        # Heartbeat every minute
         if (($now - $lastHeartbeat).TotalSeconds -ge $HEARTBEAT_INTERVAL) {
             $deviceId = Send-Heartbeat -DeviceInfo $deviceInfo -DeviceId $deviceId
             $lastHeartbeat = $now
         }
         
-        # Send full update data every 5 minutes
+        # Full update scan every 5 minutes
         if (($now - $lastUpdateScan).TotalSeconds -ge 300) {
             if ($null -ne $deviceId) {
-                Write-Log "Scanning for updates..." "INFO"
-                $pendingUpdates = Get-PendingUpdates
-                $installedUpdates = Get-InstalledUpdates
-                $failedUpdates = Get-FailedUpdates
-                
+                Write-Log "Scanning updates..." "INFO"
                 Send-UpdateData -DeviceInfo $deviceInfo -DeviceId $deviceId `
-                    -PendingUpdates $pendingUpdates `
-                    -InstalledUpdates $installedUpdates `
-                    -FailedUpdates $failedUpdates
-                
+                    -PendingUpdates (Get-PendingUpdates) `
+                    -InstalledUpdates (Get-InstalledUpdates) `
+                    -FailedUpdates (Get-FailedUpdates)
                 $lastUpdateScan = $now
             }
         }
         
-        # Check for pending tasks every 30 seconds
+        # Check tasks every 30 seconds
         if (($now - $lastTaskCheck).TotalSeconds -ge $TASK_CHECK_INTERVAL) {
             if ($null -ne $deviceId) {
                 $tasks = Get-PendingTasks -DeviceId $deviceId
-                
                 if ($tasks -and $tasks.Count -gt 0) {
-                    Write-Log "Found $($tasks.Count) pending task(s)" "INFO"
+                    Write-Log "Found $($tasks.Count) task(s)" "INFO"
                     foreach ($task in $tasks) {
                         Execute-Task -Task $task
                     }
                 }
-                
                 $lastTaskCheck = $now
             }
         }
         
-        # Sleep for 10 seconds before next iteration
         Start-Sleep -Seconds 10
     }
     catch {
-        Write-Log "Service loop error: $_" "ERROR"
+        Write-Log "Service error: $_" "ERROR"
         Start-Sleep -Seconds 30
     }
 }
